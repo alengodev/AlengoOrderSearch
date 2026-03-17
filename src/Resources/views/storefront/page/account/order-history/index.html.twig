@@ -4,7 +4,7 @@
     {{ parent() }}
 
     {% block page_account_orders_search %}
-        <div class="account-orders-search my-4">
+        <div class="account-orders-search my-4" data-alengo-order-search="true">
             <form class="account-orders-search-form"
                   action="{{ path('frontend.account.order.page') }}"
                   method="get">

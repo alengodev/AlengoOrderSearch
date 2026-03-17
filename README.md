@@ -17,13 +17,13 @@ wenn der Suchbegriff in mindestens einem der Felder vorkommt.
 
 ## Technische Details
 
-| Eigenschaft   | Wert                                    |
-|---------------|-----------------------------------------|
-| Shopware      | 6.5.8+                                  |
-| PHP           | 8.1+                                    |
-| JavaScript    | Keins – kein Build-Schritt erforderlich |
-| Hook-Punkt    | `OrderRouteRequestEvent`                |
-| Seitenladung  | Vollständig serverseitig (Page-Reload)  |
+| Eigenschaft   | Wert                                                |
+|---------------|-----------------------------------------------------|
+| Shopware      | 6.5.8+                                              |
+| PHP           | 8.1+                                                |
+| JavaScript    | Ja – Build via `bin/build-storefront.sh` erforderlich |
+| Hook-Punkt    | `OrderRouteRequestEvent`                            |
+| Seitenladung  | Serverseitig (Page-Reload); Pagination clientseitig gepatcht |
 
 ## Installation
 
@@ -32,6 +32,9 @@ bin/console plugin:refresh
 bin/console plugin:install AlengoOrderSearch
 bin/console plugin:activate AlengoOrderSearch
 bin/console cache:clear
+
+# Storefront neu bauen, damit das JS-Plugin eingebunden wird
+bin/build-storefront.sh
 ```
 
 ## Verwendung
@@ -41,6 +44,8 @@ Der Kunde gibt einen Suchbegriff ein und bestätigt mit Enter oder dem Suchen-Bu
 Ein Reset-Link erscheint solange eine aktive Suche vorhanden ist.
 
 ## Architektur
+
+### Serverseitige Suchverarbeitung
 
 ```
 OrderRouteRequestEvent
@@ -61,12 +66,37 @@ AbstractOrderRoute (Shopware Core)
 AccountOrderPage mit gefilterten Bestellungen
 ```
 
+### Clientseitige Pagination-Korrektur
+
+Shopware generiert Pagination-Links ohne Kenntnis des `search`-Parameters.
+Das JS-Plugin liest den Parameter aus der aktuellen URL und hängt ihn an alle
+`.pagination-nav a`-Links an, sodass bei Seitenwechsel der Suchbegriff erhalten bleibt.
+Ein `MutationObserver` reagiert auf DOM-Änderungen und patcht nachträglich eingefügte
+Pagination-Elemente (z.B. bei AJAX-Seitennavigation).
+
+```
+Seitenaufruf mit ?search=…
+        │
+        ▼
+AlengoOrderSearchPlugin.init()
+        │  liest search-Parameter aus window.location.search
+        ▼
+_applyToLinks()
+        │  setzt search-Parameter auf alle .pagination-nav a
+        ▼
+_watchForUpdates() – MutationObserver
+        │  beobachtet DOM-Änderungen
+        ▼
+_applyToLinks() (erneut bei neuen DOM-Elementen)
+```
+
 ## Dateistruktur
 
 ```
 AlengoOrderSearch/
 ├── composer.json
 ├── README.md
+├── CHANGELOG.md
 ├── src/
 │   ├── AlengoOrderSearch.php
 │   ├── Service/
@@ -74,6 +104,12 @@ AlengoOrderSearch/
 │   ├── Subscriber/
 │   │   └── OrderSearchSubscriber.php
 │   └── Resources/
+│       ├── app/
+│       │   └── storefront/
+│       │       └── src/
+│       │           ├── main.js                          ← Plugin-Registrierung
+│       │           └── alengo-order-search/
+│       │               └── alengo-order-search.plugin.js ← Pagination-Patch
 │       ├── config/
 │       │   └── services.xml
 │       ├── snippet/
@@ -90,17 +126,4 @@ AlengoOrderSearch/
 
 ## Changelog
 
-### [1.1.0] – 2026-03-17
-
-#### Added
-- Suche nach E-Mail-Adresse des Bestellers (`orderCustomer.email`)
-
-### [1.0.0] – 2026-03-16
-
-#### Added
-- Suchfeld in der Bestellhistorie (Account → Bestellungen)
-- Suche nach Bestellername (Vor- und Nachname)
-- Suche nach Produktname (Bestellposition)
-- Suche nach Lieferadresse (Straße, Stadt, PLZ)
-- Reset-Link zum Aufheben der aktiven Suche
-- Übersetzungen Deutsch (`de_DE`) und Englisch (`en_GB`)
+See [CHANGELOG.md](CHANGELOG.md).
