@@ -1,0 +1,8 @@
+{
+    "alengo-order-search": {
+        "searchLabel": "Search orders",
+        "searchPlaceholder": "Search by name, email, product or delivery address...",
+        "searchButton": "Search",
+        "searchReset": "Reset search"
+    }
+}

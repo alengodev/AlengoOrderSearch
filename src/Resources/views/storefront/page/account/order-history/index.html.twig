@@ -1,0 +1,58 @@
+{% sw_extends '@Storefront/storefront/page/account/order-history/index.html.twig' %}
+
+{% block page_account_orders_welcome %}
+    {{ parent() }}
+
+    {% block page_account_orders_search %}
+        <div class="account-orders-search my-4">
+            <form class="account-orders-search-form"
+                  action="{{ path('frontend.account.order.page') }}"
+                  method="get">
+
+                {% block page_account_orders_search_label %}
+                    <label for="alengo-order-search" class="visually-hidden">
+                        {{ 'alengo-order-search.searchLabel'|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
+
+                {% block page_account_orders_search_input_group %}
+                    <div class="input-group">
+
+                        {% block page_account_orders_search_input %}
+                            <input type="search"
+                                   id="alengo-order-search"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ app.request.query.get('search', '')|sw_sanitize }}"
+                                   placeholder="{{ 'alengo-order-search.searchPlaceholder'|trans|sw_sanitize }}"
+                                   autocomplete="off">
+                        {% endblock %}
+
+                        {% block page_account_orders_search_button %}
+                            <button type="submit" class="btn btn-primary">
+                                {% sw_icon 'search' style { ariaHidden: true } %}
+                                <span class="visually-hidden">
+                                    {{ 'alengo-order-search.searchButton'|trans|sw_sanitize }}
+                                </span>
+                            </button>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% if app.request.query.get('search') %}
+                    {% block page_account_orders_search_reset %}
+                        <div class="account-orders-search-reset mt-2">
+                            <a href="{{ path('frontend.account.order.page') }}"
+                               class="btn btn-sm btn-outline-secondary">
+                                {% sw_icon 'x-circle' style { ariaHidden: true } %}
+                                {{ 'alengo-order-search.searchReset'|trans|sw_sanitize }}
+                            </a>
+                        </div>
+                    {% endblock %}
+                {% endif %}
+
+            </form>
+        </div>
+    {% endblock %}
+{% endblock %}
