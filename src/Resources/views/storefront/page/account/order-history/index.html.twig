@@ -73,7 +73,7 @@
                                    autocomplete="off"
                                    aria-label="{{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}"
                                    data-date-picker="true"
-                                   data-date-picker-options="{{ _datePickerOptions|json_encode|sw_sanitize }}">
+                                   data-date-picker-options="{{ _datePickerOptions|json_encode }}">
                         </div>
                         <div class="col-auto">
                             <label for="alengo-order-date-to" class="col-form-label">
@@ -89,7 +89,7 @@
                                    autocomplete="off"
                                    aria-label="{{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}"
                                    data-date-picker="true"
-                                   data-date-picker-options="{{ _datePickerOptions|json_encode|sw_sanitize }}">
+                                   data-date-picker-options="{{ _datePickerOptions|json_encode }}">
                         </div>
                     </div>
                 {% endblock %}
