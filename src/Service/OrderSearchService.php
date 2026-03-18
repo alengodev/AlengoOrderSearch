@@ -70,8 +70,8 @@ class OrderSearchService
     public function addDateRangeCriteria(?string $dateFrom, ?string $dateTo, Criteria $criteria): Criteria
     {
         if ($dateFrom !== null && $dateFrom !== '') {
-            $parsedFrom = \DateTimeImmutable::createFromFormat('Y-m-d', $dateFrom);
-            if ($parsedFrom !== false) {
+            $parsedFrom = $this->parseStrictDate($dateFrom);
+            if ($parsedFrom !== null) {
                 $criteria->addFilter(new RangeFilter('orderDateTime', [
                     RangeFilter::GTE => $parsedFrom->format('Y-m-d 00:00:00'),
                 ]));
@@ -79,8 +79,8 @@ class OrderSearchService
         }
 
         if ($dateTo !== null && $dateTo !== '') {
-            $parsedTo = \DateTimeImmutable::createFromFormat('Y-m-d', $dateTo);
-            if ($parsedTo !== false) {
+            $parsedTo = $this->parseStrictDate($dateTo);
+            if ($parsedTo !== null) {
                 $criteria->addFilter(new RangeFilter('orderDateTime', [
                     RangeFilter::LTE => $parsedTo->format('Y-m-d 23:59:59'),
                 ]));
@@ -91,14 +91,52 @@ class OrderSearchService
     }
 
     /**
+     * Parses a date string strictly as YYYY-MM-DD.
+     *
+     * Returns null for any input that is not a syntactically valid and
+     * calendar-correct date (e.g. month 13 or day 99 are rejected).
+     * PHP's createFromFormat() alone is not sufficient because it silently
+     * overflows invalid values (e.g. 2024-13-01 → 2025-01-01).
+     */
+    private function parseStrictDate(string $date): ?\DateTimeImmutable
+    {
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return null;
+        }
+
+        [$y, $m, $d] = array_map('intval', explode('-', $date));
+
+        if (!checkdate($m, $d, $y)) {
+            return null;
+        }
+
+        return \DateTimeImmutable::createFromFormat('Y-m-d', $date) ?: null;
+    }
+
+    /**
      * Sanitizes raw user input before it is passed into a DAL filter.
      *
      * Strips HTML tags and surrounding whitespace. Returns an empty string
      * when the input contains only markup or whitespace, which callers use
      * as the signal to skip filtering entirely.
      */
+    /**
+     * Sanitizes raw user input before it is passed into a DAL filter.
+     *
+     * Strips script/style tag content (including the text inside them) and all
+     * remaining HTML tags, then trims surrounding whitespace. Returns an empty
+     * string when the result is blank, which callers use as the signal to skip
+     * filtering entirely.
+     *
+     * Note: PHP's strip_tags() removes tags but keeps inner text, so
+     * "<script>alert(1)</script>foo" would become "alert(1)foo". The regex
+     * pre-pass removes the content of script and style blocks before strip_tags
+     * runs.
+     */
     public function extractSearchTerm(string $rawInput): string
     {
-        return trim(strip_tags($rawInput));
+        $stripped = preg_replace('/<(script|style)[^>]*>.*?<\/\1>/si', '', $rawInput);
+
+        return trim(strip_tags($stripped ?? $rawInput));
     }
 }

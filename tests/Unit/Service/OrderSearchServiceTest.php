@@ -3,14 +3,13 @@
 namespace AlengoOrderSearch\Tests\Unit\Service;
 
 use AlengoOrderSearch\Service\OrderSearchService;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
-/**
- * @covers \AlengoOrderSearch\Service\OrderSearchService
- */
+#[CoversClass(OrderSearchService::class)]
 class OrderSearchServiceTest extends TestCase
 {
     private OrderSearchService $service;
