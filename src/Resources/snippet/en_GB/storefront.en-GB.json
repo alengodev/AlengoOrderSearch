@@ -3,6 +3,9 @@
         "searchLabel": "Search orders",
         "searchPlaceholder": "Search by name, email, product or delivery address...",
         "searchButton": "Search",
-        "searchReset": "Reset search"
+        "searchReset": "Reset search",
+        "dateFromLabel": "From",
+        "dateToLabel": "To",
+        "dateRangeAriaLabel": "Filter by order date range"
     }
 }

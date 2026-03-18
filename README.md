@@ -5,15 +5,32 @@ eine Suchfunktion hinzufügt.
 
 ## Funktionalität
 
-Ein einzelnes Suchfeld ermöglicht die gleichzeitige Suche über:
+Ein Suchfeld und ein Datumsbereich-Filter ermöglichen die Einschränkung der Bestellliste:
+
+### Textsuche
+
+Gleichzeitige Suche über alle folgenden Felder (OR-Logik):
 
 - **Bestellername** – Vor- und Nachname des Bestellers
 - **E-Mail-Adresse** – E-Mail des Bestellers (`orderCustomer.email`)
 - **Produktname** – Bezeichnung der Bestellpositionen (lineItems.label)
 - **Lieferadresse** – Straße, Stadt und PLZ der Lieferadresse
 
-Die Suche arbeitet mit **OR-Logik**: Eine Bestellung erscheint in den Ergebnissen,
-wenn der Suchbegriff in mindestens einem der Felder vorkommt.
+Eine Bestellung erscheint in den Ergebnissen, wenn der Suchbegriff in mindestens
+einem der Felder vorkommt.
+
+### Datumsbereich-Filter
+
+Zwei optionale Datumsfelder ("Von" / "Bis") filtern nach dem Bestelldatum
+(`order.orderDateTime`):
+
+- Nur "Von" → Bestellungen ab diesem Tag (00:00:00)
+- Nur "Bis" → Bestellungen bis zu diesem Tag (23:59:59)
+- Beide Felder → geschlossenes Intervall
+- Beide leer → kein Datumsfilter aktiv
+
+Textsuche und Datumsfilter können unabhängig voneinander oder kombiniert
+verwendet werden. Der Reset-Link erscheint, sobald mindestens ein Filter aktiv ist.
 
 ## Technische Details
 
@@ -52,13 +69,15 @@ OrderRouteRequestEvent
         │
         ▼
 OrderSearchSubscriber::onOrderRouteRequest()
-        │  liest query-Parameter 'search'
-        ▼
-OrderSearchService::extractSearchTerm()
-        │  bereinigt Eingabe (trim, strip_tags)
-        ▼
-OrderSearchService::addSearchCriteria()
-        │  ergänzt Criteria um MultiFilter(OR)
+        │  liest query-Parameter 'search', 'dateFrom', 'dateTo'
+        ├──► OrderSearchService::extractSearchTerm()
+        │            bereinigt Eingabe (trim, strip_tags)
+        │    OrderSearchService::addSearchCriteria()
+        │            ergänzt Criteria um MultiFilter(OR) [wenn search gesetzt]
+        │
+        └──► OrderSearchService::addDateRangeCriteria()
+                     ergänzt Criteria um RangeFilter(GTE) und/oder RangeFilter(LTE)
+                     auf orderDateTime [wenn dateFrom und/oder dateTo gesetzt]
         ▼
 AbstractOrderRoute (Shopware Core)
         │  führt gefilterte Datenbankabfrage aus
@@ -84,22 +103,23 @@ den Bestelllisten-Container nach einem Pagination-Submit ersetzt, und patcht das
 neu eingefügte Formular erneut.
 
 ```
-Seitenaufruf mit ?search=…
+Seitenaufruf mit ?search=…&dateFrom=…&dateTo=…
         │
         ▼
 AlengoOrderSearchPlugin.init()
-        │  liest search-Parameter aus window.location.search
-        │  kein search-Parameter → Plugin beendet sich sofort
+        │  liest search, dateFrom, dateTo aus window.location.search
+        │  kein aktiver Filter → Plugin beendet sich sofort
         ▼
 _patchPaginationFormAction()
         │  findet .account-orders-pagination-form
-        │  hängt ?search=… an action-Attribut des Formulars
+        │  setzt search, dateFrom, dateTo in action-URL (aktive Parameter)
+        │  entfernt inaktive Parameter aus der URL
         ▼
 _watchForAjaxUpdates()
         │  MutationObserver auf .account-orders-main (childList)
         │  bei DOM-Änderung → _patchPaginationFormAction() erneut
         ▼
-Nutzer klickt Seite → Formular-Submit → Server liest ?search= aus Query
+Nutzer klickt Seite → Formular-Submit → Server liest alle Query-Parameter
 ```
 
 ## Dateistruktur

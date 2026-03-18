@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.3.0] – 2026-03-18
+
+### Added
+- Date range filter (from / to) for the order date (`order.orderDateTime`).
+  Two optional `<input type="date">` fields appear below the text search field.
+- GET parameters `dateFrom` and `dateTo` (YYYY-MM-DD) are read by
+  `OrderSearchSubscriber` and applied as `RangeFilter` (GTE / LTE) via the new
+  `OrderSearchService::addDateRangeCriteria()` method. Invalid date strings are
+  silently ignored.
+- Pagination now preserves `dateFrom` and `dateTo` in addition to `search` — the
+  JS plugin patches all three parameters into the pagination form's action URL.
+- Reset link is now shown whenever any of `search`, `dateFrom`, or `dateTo` is
+  set (previously only triggered by `search`).
+- New snippet keys: `dateFromLabel`, `dateToLabel`, `dateRangeAriaLabel`
+  (de_DE and en_GB).
+
 ## [1.2.1] – 2026-03-18
 
 ### Fixed

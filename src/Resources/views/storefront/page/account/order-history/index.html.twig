@@ -4,10 +4,16 @@
     {{ parent() }}
 
     {% block page_account_orders_search %}
+        {%- set _dateFrom = app.request.query.get('dateFrom', '') -%}
+        {%- set _dateTo   = app.request.query.get('dateTo', '')   -%}
+        {%- set _search   = app.request.query.get('search', '')   -%}
+        {%- set _hasActiveFilter = (_search is not empty) or (_dateFrom is not empty) or (_dateTo is not empty) -%}
+
         <div class="account-orders-search my-4" data-alengo-order-search="true">
             <form class="account-orders-search-form"
                   action="{{ path('frontend.account.order.page') }}"
-                  method="get">
+                  method="get"
+                  aria-label="{{ 'alengo-order-search.dateRangeAriaLabel'|trans|sw_sanitize }}">
 
                 {% block page_account_orders_search_label %}
                     <label for="alengo-order-search" class="visually-hidden">
@@ -16,14 +22,14 @@
                 {% endblock %}
 
                 {% block page_account_orders_search_input_group %}
-                    <div class="input-group">
+                    <div class="input-group mb-2">
 
                         {% block page_account_orders_search_input %}
                             <input type="search"
                                    id="alengo-order-search"
                                    name="search"
                                    class="form-control"
-                                   value="{{ app.request.query.get('search', '')|sw_sanitize }}"
+                                   value="{{ _search|sw_sanitize }}"
                                    placeholder="{{ 'alengo-order-search.searchPlaceholder'|trans|sw_sanitize }}"
                                    autocomplete="off">
                         {% endblock %}
@@ -40,7 +46,38 @@
                     </div>
                 {% endblock %}
 
-                {% if app.request.query.get('search') %}
+                {% block page_account_orders_date_range %}
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label for="alengo-order-date-from" class="col-form-label">
+                                {{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date"
+                                   id="alengo-order-date-from"
+                                   name="dateFrom"
+                                   class="form-control form-control-sm"
+                                   value="{{ _dateFrom|sw_sanitize }}"
+                                   autocomplete="off">
+                        </div>
+                        <div class="col-auto">
+                            <label for="alengo-order-date-to" class="col-form-label">
+                                {{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date"
+                                   id="alengo-order-date-to"
+                                   name="dateTo"
+                                   class="form-control form-control-sm"
+                                   value="{{ _dateTo|sw_sanitize }}"
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% if _hasActiveFilter %}
                     {% block page_account_orders_search_reset %}
                         <div class="account-orders-search-reset mt-2">
                             <a href="{{ path('frontend.account.order.page') }}"
