@@ -20,7 +20,7 @@ wenn der Suchbegriff in mindestens einem der Felder vorkommt.
 | Eigenschaft   | Wert                                                |
 |---------------|-----------------------------------------------------|
 | Shopware      | 6.5.8+                                              |
-| PHP           | 8.1+                                                |
+| PHP           | 8.3+                                                |
 | JavaScript    | Ja – Build via `bin/build-storefront.sh` erforderlich |
 | Hook-Punkt    | `OrderRouteRequestEvent`                            |
 | Seitenladung  | Serverseitig (Page-Reload); Pagination clientseitig gepatcht |
@@ -68,11 +68,20 @@ AccountOrderPage mit gefilterten Bestellungen
 
 ### Clientseitige Pagination-Korrektur
 
-Shopware generiert Pagination-Links ohne Kenntnis des `search`-Parameters.
-Das JS-Plugin liest den Parameter aus der aktuellen URL und hängt ihn an alle
-`.pagination-nav a`-Links an, sodass bei Seitenwechsel der Suchbegriff erhalten bleibt.
-Ein `MutationObserver` reagiert auf DOM-Änderungen und patcht nachträglich eingefügte
-Pagination-Elemente (z.B. bei AJAX-Seitennavigation).
+Die Shopware-Pagination in der Bestellhistorie ist kein Link-basiertes Markup,
+sondern ein POST-Formular (`.account-orders-pagination-form`) mit Radio-Inputs
+für die Seitennummer, das via `data-form-ajax-submit` abgeschickt wird.
+Ein Link-Interceptor auf `.pagination-nav a` funktioniert hier daher nicht —
+es gibt keine `<a>`-Elemente in der Pagination.
+
+Das JS-Plugin setzt stattdessen auf Form-Action-Patching: Der `action`-URL des
+Formulars wird der `search`-Parameter als Query-String angehängt. Da POST-Formulare
+Query-Parameter in der Action-URL als GET-Parameter an den Server übermitteln,
+liest `OrderSearchSubscriber` den Wert korrekt via `$request->query->get('search')`.
+
+Ein `MutationObserver` auf `.account-orders-main` erkennt, wenn Shopwares AJAX-Layer
+den Bestelllisten-Container nach einem Pagination-Submit ersetzt, und patcht das
+neu eingefügte Formular erneut.
 
 ```
 Seitenaufruf mit ?search=…
@@ -80,14 +89,17 @@ Seitenaufruf mit ?search=…
         ▼
 AlengoOrderSearchPlugin.init()
         │  liest search-Parameter aus window.location.search
+        │  kein search-Parameter → Plugin beendet sich sofort
         ▼
-_applyToLinks()
-        │  setzt search-Parameter auf alle .pagination-nav a
+_patchPaginationFormAction()
+        │  findet .account-orders-pagination-form
+        │  hängt ?search=… an action-Attribut des Formulars
         ▼
-_watchForUpdates() – MutationObserver
-        │  beobachtet DOM-Änderungen
+_watchForAjaxUpdates()
+        │  MutationObserver auf .account-orders-main (childList)
+        │  bei DOM-Änderung → _patchPaginationFormAction() erneut
         ▼
-_applyToLinks() (erneut bei neuen DOM-Elementen)
+Nutzer klickt Seite → Formular-Submit → Server liest ?search= aus Query
 ```
 
 ## Dateistruktur

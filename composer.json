@@ -2,7 +2,7 @@
     "name": "alengo/order-search",
     "description": "Adds a search field to the order history in the customer account",
     "type": "shopware-platform-plugin",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "license": "MIT",
     "authors": [
         {

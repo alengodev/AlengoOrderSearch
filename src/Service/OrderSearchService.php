@@ -7,24 +7,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
 /**
- * Stellt Such-Logik für die Bestellhistorie bereit.
+ * Provides search logic for the customer order history.
  *
- * Erweitert eine Shopware DAL Criteria um OR-verknüpfte ContainsFilter
- * auf Bestellername, E-Mail-Adresse, Produktname und Lieferadresse.
+ * Extends a Shopware DAL {@see Criteria} instance with OR-linked
+ * {@see ContainsFilter}s across order customer name, email, line item labels,
+ * and shipping address fields. The criteria object is mutated in place;
+ * the return value is the same instance for call chaining.
  */
 class OrderSearchService
 {
     /**
-     * Ergänzt die Criteria um Such-Filter für Bestellername, E-Mail-Adresse, Produktname und Lieferadresse.
+     * Adds a MultiFilter(OR) to the criteria covering all seven searchable order fields.
      *
-     * Alle Filter werden mit OR-Logik verknüpft: Ein Treffer in einem der Felder genügt.
-     * Die Association deliveries.shippingOrderAddress wird automatisch hinzugefügt,
-     * da sie für die Adresssuche benötigt wird.
+     * Returns the unmodified criteria immediately when the trimmed term is empty.
+     * The `deliveries.shippingOrderAddress` association is added automatically
+     * because it is not loaded by default and is required for address field filtering.
      *
-     * @param string   $searchTerm Suchbegriff (wird intern getrimmt)
-     * @param Criteria $criteria   Zu erweiternde Criteria-Instanz (wird direkt modifiziert)
-     *
-     * @return Criteria Die modifizierte Criteria-Instanz
+     * @param Criteria $criteria Modified in place; returned for chaining.
      */
     public function addSearchCriteria(string $searchTerm, Criteria $criteria): Criteria
     {
@@ -50,13 +49,11 @@ class OrderSearchService
     }
 
     /**
-     * Extrahiert und bereinigt den Suchbegriff aus einer rohen Eingabe.
+     * Sanitizes raw user input before it is passed into a DAL filter.
      *
-     * Entfernt HTML-Tags und führendes/nachfolgendes Whitespace.
-     *
-     * @param string $rawInput Rohe Eingabe aus dem Request
-     *
-     * @return string Bereinigter Suchbegriff
+     * Strips HTML tags and surrounding whitespace. Returns an empty string
+     * when the input contains only markup or whitespace, which callers use
+     * as the signal to skip filtering entirely.
      */
     public function extractSearchTerm(string $rawInput): string
     {

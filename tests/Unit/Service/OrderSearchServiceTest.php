@@ -56,6 +56,10 @@ class OrderSearchServiceTest extends TestCase
 
         $associations = $criteria->getAssociations();
         static::assertArrayHasKey('deliveries', $associations);
+
+        // The sub-association shippingOrderAddress must be nested inside deliveries
+        $deliveriesCriteria = $associations['deliveries'];
+        static::assertArrayHasKey('shippingOrderAddress', $deliveriesCriteria->getAssociations());
     }
 
     public function testAddSearchCriteriaWithEmptyTermDoesNotAddFilters(): void

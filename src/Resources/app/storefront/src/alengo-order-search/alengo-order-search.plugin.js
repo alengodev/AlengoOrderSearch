@@ -6,48 +6,63 @@ export default class AlengoOrderSearchPlugin extends Plugin {
         const params = new URLSearchParams(window.location.search);
         this._searchTerm = params.get('search');
 
+        // Nothing to do when no search is active — avoid unnecessary DOM queries.
         if (!this._searchTerm) {
             return;
         }
 
-        this._applyToLinks();
-        this._watchForUpdates();
+        this._patchPaginationFormAction();
+        this._watchForAjaxUpdates();
     }
 
-    _applyToLinks() {
-        const links = document.querySelectorAll('.pagination-nav a');
+    /**
+     * Appends the search term to the pagination form's action URL.
+     * Since the pagination form uses POST, query params in the action URL
+     * are preserved as GET params in the server request, which is what
+     * OrderSearchSubscriber reads via $request->query->get('search').
+     */
+    _patchPaginationFormAction() {
+        const form = document.querySelector('.account-orders-pagination-form');
 
-        links.forEach((link) => {
-            try {
-                const url = new URL(link.getAttribute('href'), window.location.origin);
-                url.searchParams.set('search', this._searchTerm);
-                link.setAttribute('href', url.pathname + url.search);
-            } catch (e) {
-                // Ungueltige URL ignorieren
-            }
-        });
+        if (!form) {
+            return;
+        }
+
+        try {
+            const action = form.getAttribute('action') || window.location.pathname;
+            const url = new URL(action, window.location.origin);
+            url.searchParams.set('search', this._searchTerm);
+            form.setAttribute('action', url.pathname + url.search);
+        } catch (e) {
+            // Ungueltige URL ignorieren
+        }
     }
 
-    _watchForUpdates() {
-        this._observer = new MutationObserver((mutations) => {
-            const hasNewElements = mutations.some((mutation) => {
-                return Array.from(mutation.addedNodes).some(
-                    (node) => node.nodeType === Node.ELEMENT_NODE
-                );
-            });
+    /**
+     * Watches .account-orders-main for AJAX content replacement
+     * (triggered by Shopware's FormAjaxSubmit plugin) and re-patches the new form.
+     *
+     * subtree: false is intentional — only direct child replacements matter here.
+     * Deeper mutations would cause redundant re-patches without benefit.
+     */
+    _watchForAjaxUpdates() {
+        const target = document.querySelector('.account-orders-main');
 
-            if (hasNewElements) {
-                this._applyToLinks();
-            }
+        if (!target) {
+            return;
+        }
+
+        this._observer = new MutationObserver(() => {
+            this._patchPaginationFormAction();
         });
 
-        this._observer.observe(document.body, {
+        this._observer.observe(target, {
             childList: true,
-            subtree: true,
+            subtree: false,
         });
     }
 
-    onUnmount() {
+    disconnect() {
         if (this._observer) {
             this._observer.disconnect();
             this._observer = null;

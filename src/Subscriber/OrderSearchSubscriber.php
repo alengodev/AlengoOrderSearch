@@ -7,8 +7,13 @@ use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Lauscht auf das OrderRouteRequestEvent und ergänzt die Criteria
- * um Suchfilter, wenn ein Suchbegriff im Request vorhanden ist.
+ * Hooks into the order list request and injects search filters into the DAL criteria.
+ *
+ * Listens on {@see OrderRouteRequestEvent}, which fires before Shopware's
+ * {@see AbstractOrderRoute} executes its database query. The search term is
+ * read from the GET parameter `search` — not from POST — because the
+ * storefront pagination submits a POST form whose action URL carries the
+ * search term as a query string (appended by the JS plugin).
  */
 class OrderSearchSubscriber implements EventSubscriberInterface
 {
@@ -28,8 +33,11 @@ class OrderSearchSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Liest den search-Parameter aus dem Storefront-Request und
-     * ergänzt die Criteria, falls ein nicht-leerer Suchbegriff vorliegt.
+     * Reads the `search` query parameter from the storefront request and
+     * delegates criteria modification to {@see OrderSearchService}.
+     *
+     * Returns early without touching the criteria when the parameter is absent,
+     * empty, or reduces to an empty string after sanitization.
      */
     public function onOrderRouteRequest(OrderRouteRequestEvent $event): void
     {

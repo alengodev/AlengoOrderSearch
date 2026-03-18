@@ -4,17 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.1] – 2026-03-18
+
+### Fixed
+- JS plugin: replaced `onUnmount()` with the correct Shopware lifecycle method
+  `disconnect()` so the `MutationObserver` is properly disconnected when the
+  plugin instance is torn down (prevents a memory leak).
+
 ## [1.2.0] – 2026-03-17
 
 ### Added
-- JS plugin `AlengoOrderSearchPlugin` that appends the active search term to all
-  pagination links, so navigating between result pages preserves the search query.
+- JS plugin `AlengoOrderSearchPlugin` that preserves the active search term
+  when navigating between result pages via the pagination.
 - `main.js` entry point for Shopware Storefront plugin registration.
 - `data-alengo-order-search="true"` attribute on the search form container to
   mount the JS plugin via `PluginManager`.
-- `MutationObserver` in the JS plugin to re-patch pagination links that are
-  injected into the DOM after the initial page load (e.g. by Shopware's AJAX
-  pagination).
+
+### Changed
+- Pagination search-parameter handling patches the `action` attribute of
+  `.account-orders-pagination-form` to append `?search=term`. Shopware's
+  pagination uses a POST form with radio inputs — there are no `<a>` links to
+  intercept. A `MutationObserver` on `.account-orders-main` re-patches the form
+  after each AJAX content replacement.
 
 ## [1.1.0] – 2026-03-17
 
