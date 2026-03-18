@@ -47,6 +47,17 @@
                 {% endblock %}
 
                 {% block page_account_orders_date_range %}
+                    {%- set _locale = app.request.locale|slice(0, 2) -%}
+                    {%- set _datePickerOptions = {
+                        enableTime: false,
+                        noCalendar: false,
+                        dateFormat: 'Y-m-d',
+                        altInput: true,
+                        weekNumbers: false,
+                        allowInput: true,
+                        locale: _locale
+                    } -%}
+
                     <div class="row g-2 align-items-center">
                         <div class="col-auto">
                             <label for="alengo-order-date-from" class="col-form-label">
@@ -54,12 +65,15 @@
                             </label>
                         </div>
                         <div class="col-auto">
-                            <input type="date"
+                            <input type="text"
                                    id="alengo-order-date-from"
                                    name="dateFrom"
                                    class="form-control form-control-sm"
                                    value="{{ _dateFrom|sw_sanitize }}"
-                                   autocomplete="off">
+                                   autocomplete="off"
+                                   aria-label="{{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}"
+                                   data-date-picker="true"
+                                   data-date-picker-options="{{ _datePickerOptions|json_encode|sw_sanitize }}">
                         </div>
                         <div class="col-auto">
                             <label for="alengo-order-date-to" class="col-form-label">
@@ -67,12 +81,15 @@
                             </label>
                         </div>
                         <div class="col-auto">
-                            <input type="date"
+                            <input type="text"
                                    id="alengo-order-date-to"
                                    name="dateTo"
                                    class="form-control form-control-sm"
                                    value="{{ _dateTo|sw_sanitize }}"
-                                   autocomplete="off">
+                                   autocomplete="off"
+                                   aria-label="{{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}"
+                                   data-date-picker="true"
+                                   data-date-picker-options="{{ _datePickerOptions|json_encode|sw_sanitize }}">
                         </div>
                     </div>
                 {% endblock %}

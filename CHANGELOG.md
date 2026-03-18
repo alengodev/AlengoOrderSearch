@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Date range filter (from / to) for the order date (`order.orderDateTime`).
-  Two optional `<input type="date">` fields appear below the text search field.
+  Two date picker fields (powered by Shopware's native `DatePickerPlugin` / Flatpickr) appear below the text search field — with locale-aware calendar popup and keyboard input support.
 - GET parameters `dateFrom` and `dateTo` (YYYY-MM-DD) are read by
   `OrderSearchSubscriber` and applied as `RangeFilter` (GTE / LTE) via the new
   `OrderSearchService::addDateRangeCriteria()` method. Invalid date strings are
