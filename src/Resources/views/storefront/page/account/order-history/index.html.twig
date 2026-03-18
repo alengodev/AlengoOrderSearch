@@ -8,105 +8,107 @@
         {%- set _dateTo   = app.request.query.get('dateTo', '')   -%}
         {%- set _search   = app.request.query.get('search', '')   -%}
         {%- set _hasActiveFilter = (_search is not empty) or (_dateFrom is not empty) or (_dateTo is not empty) -%}
+        {%- set _locale = app.request.locale|slice(0, 2) -%}
+        {%- set _datePickerOptions = {
+            enableTime: false,
+            noCalendar: false,
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            weekNumbers: false,
+            allowInput: true,
+            locale: _locale
+        } -%}
 
         <div class="account-orders-search my-4" data-alengo-order-search="true">
-            <form class="account-orders-search-form"
-                  action="{{ path('frontend.account.order.page') }}"
-                  method="get"
-                  aria-label="{{ 'alengo-order-search.dateRangeAriaLabel'|trans|sw_sanitize }}">
+            <div class="card">
+                <div class="card-body">
 
-                {% block page_account_orders_search_label %}
-                    <label for="alengo-order-search" class="visually-hidden">
-                        {{ 'alengo-order-search.searchLabel'|trans|sw_sanitize }}
-                    </label>
-                {% endblock %}
+                    <form class="account-orders-search-form"
+                          action="{{ path('frontend.account.order.page') }}"
+                          method="get">
 
-                {% block page_account_orders_search_input_group %}
-                    <div class="input-group mb-2">
+                        <div class="row g-3">
 
-                        {% block page_account_orders_search_input %}
-                            <input type="search"
-                                   id="alengo-order-search"
-                                   name="search"
-                                   class="form-control"
-                                   value="{{ _search|sw_sanitize }}"
-                                   placeholder="{{ 'alengo-order-search.searchPlaceholder'|trans|sw_sanitize }}"
-                                   autocomplete="off">
-                        {% endblock %}
+                            {% block page_account_orders_search_input_group %}
+                                <div class="col-12">
+                                    <label for="alengo-order-search" class="form-label">
+                                        {{ 'alengo-order-search.searchLabel'|trans|sw_sanitize }}
+                                    </label>
+                                    <div class="input-group">
 
-                        {% block page_account_orders_search_button %}
-                            <button type="submit" class="btn btn-primary">
-                                {% sw_icon 'search' style { ariaHidden: true } %}
-                                <span class="visually-hidden">
-                                    {{ 'alengo-order-search.searchButton'|trans|sw_sanitize }}
-                                </span>
-                            </button>
-                        {% endblock %}
+                                        {% block page_account_orders_search_input %}
+                                            <input type="search"
+                                                   id="alengo-order-search"
+                                                   name="search"
+                                                   class="form-control"
+                                                   value="{{ _search|sw_sanitize }}"
+                                                   placeholder="{{ 'alengo-order-search.searchPlaceholder'|trans|sw_sanitize }}"
+                                                   autocomplete="off">
+                                        {% endblock %}
 
-                    </div>
-                {% endblock %}
+                                        {% block page_account_orders_search_button %}
+                                            <button type="submit" class="btn btn-primary">
+                                                {% sw_icon 'search' style { ariaHidden: true } %}
+                                                <span class="visually-hidden">
+                                                    {{ 'alengo-order-search.searchButton'|trans|sw_sanitize }}
+                                                </span>
+                                            </button>
+                                        {% endblock %}
 
-                {% block page_account_orders_date_range %}
-                    {%- set _locale = app.request.locale|slice(0, 2) -%}
-                    {%- set _datePickerOptions = {
-                        enableTime: false,
-                        noCalendar: false,
-                        dateFormat: 'Y-m-d',
-                        altInput: true,
-                        weekNumbers: false,
-                        allowInput: true,
-                        locale: _locale
-                    } -%}
+                                    </div>
+                                </div>
+                            {% endblock %}
 
-                    <div class="row g-2 align-items-center">
-                        <div class="col-auto">
-                            <label for="alengo-order-date-from" class="col-form-label">
-                                {{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}
-                            </label>
+                            {% block page_account_orders_date_range %}
+                                <div class="col-12 col-sm-6">
+                                    <label for="alengo-order-date-from" class="form-label">
+                                        {{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}
+                                    </label>
+                                    <input type="text"
+                                           id="alengo-order-date-from"
+                                           name="dateFrom"
+                                           class="form-control"
+                                           value="{{ _dateFrom|sw_sanitize }}"
+                                           autocomplete="off"
+                                           aria-label="{{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}"
+                                           data-date-picker="true"
+                                           data-date-picker-options="{{ _datePickerOptions|json_encode }}">
+                                </div>
+
+                                <div class="col-12 col-sm-6">
+                                    <label for="alengo-order-date-to" class="form-label">
+                                        {{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}
+                                    </label>
+                                    <input type="text"
+                                           id="alengo-order-date-to"
+                                           name="dateTo"
+                                           class="form-control"
+                                           value="{{ _dateTo|sw_sanitize }}"
+                                           autocomplete="off"
+                                           aria-label="{{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}"
+                                           data-date-picker="true"
+                                           data-date-picker-options="{{ _datePickerOptions|json_encode }}">
+                                </div>
+                            {% endblock %}
+
                         </div>
-                        <div class="col-auto">
-                            <input type="text"
-                                   id="alengo-order-date-from"
-                                   name="dateFrom"
-                                   class="form-control form-control-sm"
-                                   value="{{ _dateFrom|sw_sanitize }}"
-                                   autocomplete="off"
-                                   aria-label="{{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}"
-                                   data-date-picker="true"
-                                   data-date-picker-options="{{ _datePickerOptions|json_encode }}">
-                        </div>
-                        <div class="col-auto">
-                            <label for="alengo-order-date-to" class="col-form-label">
-                                {{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}
-                            </label>
-                        </div>
-                        <div class="col-auto">
-                            <input type="text"
-                                   id="alengo-order-date-to"
-                                   name="dateTo"
-                                   class="form-control form-control-sm"
-                                   value="{{ _dateTo|sw_sanitize }}"
-                                   autocomplete="off"
-                                   aria-label="{{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}"
-                                   data-date-picker="true"
-                                   data-date-picker-options="{{ _datePickerOptions|json_encode }}">
-                        </div>
-                    </div>
-                {% endblock %}
 
-                {% if _hasActiveFilter %}
-                    {% block page_account_orders_search_reset %}
-                        <div class="account-orders-search-reset mt-2">
-                            <a href="{{ path('frontend.account.order.page') }}"
-                               class="btn btn-sm btn-outline-secondary">
-                                {% sw_icon 'x-circle' style { ariaHidden: true } %}
-                                {{ 'alengo-order-search.searchReset'|trans|sw_sanitize }}
-                            </a>
-                        </div>
-                    {% endblock %}
-                {% endif %}
+                        {% if _hasActiveFilter %}
+                            {% block page_account_orders_search_reset %}
+                                <div class="mt-3 d-flex justify-content-end">
+                                    <a href="{{ path('frontend.account.order.page') }}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        {% sw_icon 'x-circle' style { ariaHidden: true } %}
+                                        {{ 'alengo-order-search.searchReset'|trans|sw_sanitize }}
+                                    </a>
+                                </div>
+                            {% endblock %}
+                        {% endif %}
 
-            </form>
+                    </form>
+
+                </div>
+            </div>
         </div>
     {% endblock %}
 {% endblock %}
