@@ -64,30 +64,42 @@
                                     <label for="alengo-order-date-from" class="form-label">
                                         {{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}
                                     </label>
-                                    <input type="text"
-                                           id="alengo-order-date-from"
-                                           name="dateFrom"
-                                           class="form-control"
-                                           value="{{ _dateFrom|sw_sanitize }}"
-                                           autocomplete="off"
-                                           aria-label="{{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}"
-                                           data-date-picker="true"
-                                           data-date-picker-options="{{ _datePickerOptions|json_encode }}">
+                                    <div class="position-relative">
+                                        <input type="text"
+                                               id="alengo-order-date-from"
+                                               name="dateFrom"
+                                               class="form-control pe-5"
+                                               value="{{ _dateFrom|sw_sanitize }}"
+                                               autocomplete="off"
+                                               aria-label="{{ 'alengo-order-search.dateFromLabel'|trans|sw_sanitize }}"
+                                               data-date-picker="true"
+                                               data-date-picker-options="{{ _datePickerOptions|json_encode }}">
+                                        <span class="position-absolute top-50 end-0 translate-middle-y me-2 pe-none text-body-secondary"
+                                              aria-hidden="true">
+                                            {% sw_icon 'calendar' style { size: 'sm' } %}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="col-12 col-sm-6">
                                     <label for="alengo-order-date-to" class="form-label">
                                         {{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}
                                     </label>
-                                    <input type="text"
-                                           id="alengo-order-date-to"
-                                           name="dateTo"
-                                           class="form-control"
-                                           value="{{ _dateTo|sw_sanitize }}"
-                                           autocomplete="off"
-                                           aria-label="{{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}"
-                                           data-date-picker="true"
-                                           data-date-picker-options="{{ _datePickerOptions|json_encode }}">
+                                    <div class="position-relative">
+                                        <input type="text"
+                                               id="alengo-order-date-to"
+                                               name="dateTo"
+                                               class="form-control pe-5"
+                                               value="{{ _dateTo|sw_sanitize }}"
+                                               autocomplete="off"
+                                               aria-label="{{ 'alengo-order-search.dateToLabel'|trans|sw_sanitize }}"
+                                               data-date-picker="true"
+                                               data-date-picker-options="{{ _datePickerOptions|json_encode }}">
+                                        <span class="position-absolute top-50 end-0 translate-middle-y me-2 pe-none text-body-secondary"
+                                              aria-hidden="true">
+                                            {% sw_icon 'calendar' style { size: 'sm' } %}
+                                        </span>
+                                    </div>
                                 </div>
                             {% endblock %}
 

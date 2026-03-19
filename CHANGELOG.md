@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.0] – 2026-03-19
+
+### Changed
+- Date picker fields now show a `calendar` icon (Shopware icon set) inside the
+  right edge of the input. Implemented with Bootstrap position utilities
+  (`position-relative` wrapper, `position-absolute top-50 end-0 translate-middle-y`
+  on the icon span, `pe-5` padding on the input) — avoids conflicts with
+  Flatpickr's `altInput` insertion and Bootstrap's `input-group` `:first-child`
+  border-radius selectors. No custom CSS required.
+
 ## [1.3.0] – 2026-03-18
 
 ### Added
