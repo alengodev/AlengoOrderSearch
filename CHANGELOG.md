@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.4.0] – 2026-03-19
+## [1.5.0] – 2026-03-19
 
 ### Changed
+- Search button moved below all form fields; button label "Suchen" is now
+  always visible (was `visually-hidden` before). Reset button appears next
+  to the search button (same row, `d-flex gap-2`) instead of right-aligned
+  below the form. Both buttons share consistent sizing (no `btn-sm`).
+- Introduced a dedicated `page_account_orders_search_actions` Twig block
+  that wraps both buttons, making them individually overridable by child
+  templates.
 - Date picker fields now show a `calendar` icon (Shopware icon set) inside the
   right edge of the input. Implemented with Bootstrap position utilities
   (`position-relative` wrapper, `position-absolute top-50 end-0 translate-middle-y`

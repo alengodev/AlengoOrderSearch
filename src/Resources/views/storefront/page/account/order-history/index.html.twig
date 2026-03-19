@@ -34,28 +34,15 @@
                                     <label for="alengo-order-search" class="form-label">
                                         {{ 'alengo-order-search.searchLabel'|trans|sw_sanitize }}
                                     </label>
-                                    <div class="input-group">
-
-                                        {% block page_account_orders_search_input %}
-                                            <input type="search"
-                                                   id="alengo-order-search"
-                                                   name="search"
-                                                   class="form-control"
-                                                   value="{{ _search|sw_sanitize }}"
-                                                   placeholder="{{ 'alengo-order-search.searchPlaceholder'|trans|sw_sanitize }}"
-                                                   autocomplete="off">
-                                        {% endblock %}
-
-                                        {% block page_account_orders_search_button %}
-                                            <button type="submit" class="btn btn-primary">
-                                                {% sw_icon 'search' style { ariaHidden: true } %}
-                                                <span class="visually-hidden">
-                                                    {{ 'alengo-order-search.searchButton'|trans|sw_sanitize }}
-                                                </span>
-                                            </button>
-                                        {% endblock %}
-
-                                    </div>
+                                    {% block page_account_orders_search_input %}
+                                        <input type="search"
+                                               id="alengo-order-search"
+                                               name="search"
+                                               class="form-control"
+                                               value="{{ _search|sw_sanitize }}"
+                                               placeholder="{{ 'alengo-order-search.searchPlaceholder'|trans|sw_sanitize }}"
+                                               autocomplete="off">
+                                    {% endblock %}
                                 </div>
                             {% endblock %}
 
@@ -103,19 +90,30 @@
                                 </div>
                             {% endblock %}
 
-                        </div>
+                            {% block page_account_orders_search_actions %}
+                                <div class="col-12 d-flex gap-2">
 
-                        {% if _hasActiveFilter %}
-                            {% block page_account_orders_search_reset %}
-                                <div class="mt-3 d-flex justify-content-end">
-                                    <a href="{{ path('frontend.account.order.page') }}"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        {% sw_icon 'x-circle' style { ariaHidden: true } %}
-                                        {{ 'alengo-order-search.searchReset'|trans|sw_sanitize }}
-                                    </a>
+                                    {% block page_account_orders_search_button %}
+                                        <button type="submit" class="btn btn-primary">
+                                            {% sw_icon 'search' style { ariaHidden: true } %}
+                                            {{ 'alengo-order-search.searchButton'|trans|sw_sanitize }}
+                                        </button>
+                                    {% endblock %}
+
+                                    {% if _hasActiveFilter %}
+                                        {% block page_account_orders_search_reset %}
+                                            <a href="{{ path('frontend.account.order.page') }}"
+                                               class="btn btn-outline-secondary">
+                                                {% sw_icon 'x-circle' style { ariaHidden: true } %}
+                                                {{ 'alengo-order-search.searchReset'|trans|sw_sanitize }}
+                                            </a>
+                                        {% endblock %}
+                                    {% endif %}
+
                                 </div>
                             {% endblock %}
-                        {% endif %}
+
+                        </div>
 
                     </form>
 
